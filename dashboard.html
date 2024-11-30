@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Ticket Analysis</title>
+    <link rel="stylesheet" href="dashboard.css" />
+    <style>
+      /* Ensure the dashboard sections are displayed side by side */
+      .dashboard-container {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        margin-top: 20px;
+      }
+
+      .dashboard-section {
+        width: 48%; /* Adjust width to fit two sections side by side */
+      }
+
+      #priorityChart,
+      #sentimentChart {
+        max-width: 100%;
+        max-height: 300px;
+        width: 100%;
+      }
+
+      .table-container {
+  margin: 20px 0;
+  width: 100%; /* Full width of the page */
+  overflow-x: auto; /* Allow horizontal scrolling */
+  overflow-y: auto; /* Allow vertical scrolling */
+  padding: 10px 50px;
+}
+
+table {
+  /* width: 100%; */
+  /* min-width: 1000px; Set a minimum width to ensure horizontal scrolling */
+  border-collapse: collapse;
+  table-layout: fixed; /* Prevent columns from resizing */
+}
+
+th, td {
+  padding: 8px;
+  text-align: left;
+  word-wrap: break-word; /* Ensure long text wraps within columns */
+  max-width: 200px; /* Set max-width for columns */
+  border: 2px solid black;
+}
+
+th {
+  background-color: #f4f4f4; /* Optional styling */
+}
+
+
+      /* Loader styles */
+      #loader {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        font-size: 16px;
+        display: none; /* Hidden by default */
+      }
+      button {
+  background-color: #007bff; /* Primary blue color */
+  color: white; /* Text color */
+  border: none; /* Remove default border */
+  border-radius: 5px; /* Rounded corners */
+  padding: 10px 20px; /* Top/Bottom and Left/Right padding */
+  font-size: 16px; /* Font size */
+  cursor: pointer; /* Change cursor to pointer when hovering */
+  transition: background-color 0.3s, transform 0.2s; /* Smooth transitions for hover effects */
+  margin-left: 10px;
+}
+
+button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+  transform: scale(1.05); /* Slightly increase button size on hover */
+}
+
+button:active {
+  background-color: #004085; /* Even darker blue on click */
+  transform: scale(1); /* Reset scale to normal when clicked */
+}
+
+button:focus {
+  outline: none; /* Remove the focus outline */
+}
+
+    </style>
+  </head>
+  <body>
+    <h1>Dashboard</h1>
+
+    <div class="nav-container">
+      <button onclick="navigateToTickets()">Back to Tickets</button>
+    </div>
+
+    <!-- Loader -->
+    <div id="loader">Loading data, please wait...</div>
+
+    <!-- Dashboard Container for both charts -->
+    <div class="dashboard-container">
+      <div class="dashboard-section">
+        <h2>Ticket Prioritization</h2>
+        <canvas id="priorityChart"></canvas>
+      </div>
+
+      <div class="dashboard-section">
+        <h2>Sentiment Analysis</h2>
+        <canvas id="sentimentChart"></canvas>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <h2>Details</h2>
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th>Ticket ID</th>
+            <th>Customer Name</th>
+            <th>Customer Email</th>
+            <th>Customer Age</th>
+            <th>Customer Gender</th>
+            <th>Product Purchased</th>
+            <th>Date of Purchase</th>
+            <th>Ticket Type</th>
+            <th>Ticket Subject</th>
+            <th style="width: 600px;">Ticket Description</th>
+            <th>Ticket Status</th>
+            <th>Resolution</th>
+            <th>Ticket Priority</th>
+            <th>Ticket Channel</th>
+            <th>First Response Time</th>
+            <th>Time to Resolution</th>
+            <th>Customer Satisfaction Rating</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Table rows will be dynamically generated -->
+        </tbody>
+      </table>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      function navigateToTickets() {
+        window.location.href = "index.html";
+      }
+
+      const tickets = JSON.parse(localStorage.getItem("tickets") || "[]");
+
+      function analyzePriority(tickets) {
+        const priorities = { High: 0, Medium: 0, Low: 0 };
+        tickets.forEach((ticket) => {
+          if (
+            ticket.ticketPriority &&
+            priorities[ticket.ticketPriority] !== undefined
+          ) {
+            priorities[ticket.ticketPriority]++;
+          }
+        });
+        return priorities;
+      }
+
+      function analyzeSentiment(tickets) {
+        const sentiments = { Positive: 0, Neutral: 0, Negative: 0 };
+        tickets.forEach((ticket) => {
+          const desc = ticket.ticketDescription.toLowerCase();
+          if (
+            desc.includes("defective") ||
+            desc.includes("refund") ||
+            desc.includes("not working")
+          ) {
+            sentiments.Negative++;
+          } else if (desc.includes("delayed") || desc.includes("damaged")) {
+            sentiments.Neutral++;
+          } else {
+            sentiments.Positive++;
+          }
+        });
+        return sentiments;
+      }
+
+      function filterTickets(filterType, filterValue) {
+        return tickets.filter((ticket) => {
+          if (filterType === "priority") {
+            return ticket.ticketPriority === filterValue;
+          } else if (filterType === "sentiment") {
+            const desc = ticket.ticketDescription.toLowerCase();
+            if (filterValue === "Positive")
+              return (
+                !desc.includes("defective") &&
+                !desc.includes("refund") &&
+                !desc.includes("not working") &&
+                !desc.includes("delayed") &&
+                !desc.includes("damaged")
+              );
+            if (filterValue === "Neutral")
+              return desc.includes("delayed") || desc.includes("damaged");
+            if (filterValue === "Negative")
+              return (
+                desc.includes("defective") ||
+                desc.includes("refund") ||
+                desc.includes("not working")
+              );
+          }
+          return false;
+        });
+      }
+
+      function renderTable(filteredTickets) {
+        const tableBody = document.querySelector("#dataTable tbody");
+        tableBody.innerHTML = ""; // Clear existing rows
+        filteredTickets.forEach((ticket) => {
+          const row = `
+            <tr>
+              <td>${ticket.ticketID}</td>
+              <td>${ticket.customerName}</td>
+              <td>${ticket.customerEmail}</td>
+              <td>${ticket.customerAge}</td>
+              <td>${ticket.customerGender}</td>
+              <td>${ticket.productPurchased}</td>
+              <td>${ticket.dateOfPurchase}</td>
+              <td>${ticket.ticketType}</td>
+              <td>${ticket.ticketSubject}</td>
+              <td style="width: 600px;">${ticket.ticketDescription.replace("{product_purchased}", ticket.productPurchased)}</td>
+              <td>${ticket.ticketStatus}</td>
+              <td>${ticket.resolution || ""}</td>
+              <td>${ticket.ticketPriority}</td>
+              <td>${ticket.ticketChannel}</td>
+              <td>${ticket.firstResponseTime || ""}</td>
+              <td>${ticket.timeToResolution || ""}</td>
+              <td>${ticket.customerSatisfactionRating || ""}</td>
+            </tr>
+          `;
+          tableBody.innerHTML += row;
+        });
+      }
+
+      function renderPriorityChart(data) {
+        const ctx = document.getElementById("priorityChart").getContext("2d");
+        new Chart(ctx, {
+          type: "pie",
+          data: {
+            labels: ["High", "Medium", "Low"],
+            datasets: [
+              {
+                label: "Ticket Prioritization",
+                data: [data.High, data.Medium, data.Low],
+                backgroundColor: ["#dc3545", "#ffc107", "#28a745"],
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: "top",
+              },
+              title: {
+                display: true,
+                text: "Ticket Prioritization",
+              },
+            },
+            onClick(evt, elements) {
+              if (elements.length > 0) {
+                const index = elements[0].index;
+                const filterValue = ["High", "Medium", "Low"][index];
+                showLoader(); // Show loader before fetching data
+                const filteredTickets = filterTickets("priority", filterValue);
+                setTimeout(() => { // Simulate data fetching
+                  renderTable(filteredTickets);
+                  hideLoader(); // Hide loader after rendering
+                }, 1000); // Simulate delay for data fetching
+              }
+            },
+          },
+        });
+      }
+
+      function renderSentimentChart(data) {
+        const ctx = document.getElementById("sentimentChart").getContext("2d");
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: ["Positive", "Neutral", "Negative"],
+            datasets: [
+              {
+                label: "Sentiment Analysis",
+                data: [data.Positive, data.Neutral, data.Negative],
+                backgroundColor: ["#28a745", "#ffc107", "#dc3545"],
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false,
+              },
+              title: {
+                display: true,
+                text: "Sentiment Analysis",
+              },
+            },
+            onClick(evt, elements) {
+              if (elements.length > 0) {
+                const index = elements[0].index;
+                const filterValue = ["Positive", "Neutral", "Negative"][index];
+                showLoader(); // Show loader before fetching data
+                const filteredTickets = filterTickets("sentiment", filterValue);
+                setTimeout(() => { // Simulate data fetching
+                  renderTable(filteredTickets);
+                  hideLoader(); // Hide loader after rendering
+                }, 1000); // Simulate delay for data fetching
+              }
+            },
+          },
+        });
+      }
+
+      // Show loader before processing data
+      function showLoader() {
+        document.getElementById('loader').style.display = 'block';
+      }
+
+      // Hide loader after rendering
+      function hideLoader() {
+        document.getElementById('loader').style.display = 'none';
+      }
+
+      // Render charts and table after data is processed
+      function renderDashboard() {
+        showLoader();
+        
+        if (tickets.length > 0) {
+          const priorityData = analyzePriority(tickets);
+          const sentimentData = analyzeSentiment(tickets);
+
+          renderPriorityChart(priorityData);
+          renderSentimentChart(sentimentData);
+          
+          // Hide loader after rendering
+          hideLoader();
+        } else {
+          alert("No ticket data found. Please add tickets first.");
+          hideLoader();
+        }
+      }
+
+      // Call renderDashboard to initialize page
+      renderDashboard();
+    </script>
+  </body>
+</html>
