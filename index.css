@@ -1,75 +1,59 @@
 body {
     font-family: Arial, sans-serif;
-    padding: 20px;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
-h1 {
+
+.login-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     text-align: center;
+    width: 300px;
 }
-.form-container {
-    max-width: 600px;
-    margin: 0 auto 20px;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+
+.login-container h1 {
+    margin-bottom: 20px;
+    color: #333;
 }
-.form-container label {
+
+.login-container label {
     display: block;
     margin: 10px 0 5px;
-}
-.form-container input, .form-container textarea, .form-container select {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-}
-.table-container {
-    margin: 20px 0;
-    width: 100%; /* Full width of the page */
-    overflow-x: auto; /* Allow horizontal scrolling */
-    overflow-y: auto; /* Allow vertical scrolling */
-    padding: 10px 50px;
-  }
-  
-  table {
-    /* width: 100%; */
-    /* min-width: 1000px; Set a minimum width to ensure horizontal scrolling */
-    border-collapse: collapse;
-    table-layout: fixed; /* Prevent columns from resizing */
-  }
-  
-  th, td {
-    padding: 8px;
     text-align: left;
-    word-wrap: break-word; /* Ensure long text wraps within columns */
-    max-width: 200px; /* Set max-width for columns */
-    border: 2px solid black;
-  }
-  
-  th {
-    background-color: #f4f4f4; /* Optional styling */
-  }
-button {
-    background-color: #007bff; /* Primary blue color */
-    color: white; /* Text color */
-    border: none; /* Remove default border */
-    border-radius: 5px; /* Rounded corners */
-    padding: 10px 20px; /* Top/Bottom and Left/Right padding */
-    font-size: 16px; /* Font size */
-    cursor: pointer; /* Change cursor to pointer when hovering */
-    transition: background-color 0.3s, transform 0.2s; /* Smooth transitions for hover effects */
-    margin-left: 10px;
-  }
-  
-  button:hover {
-    background-color: #0056b3; /* Darker blue on hover */
-    transform: scale(1.05); /* Slightly increase button size on hover */
-  }
-  
-  button:active {
-    background-color: #004085; /* Even darker blue on click */
-    transform: scale(1); /* Reset scale to normal when clicked */
-  }
-  
-  button:focus {
-    outline: none; /* Remove the focus outline */
-  }
-  
+}
+
+.login-container input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.login-container button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.login-container button:hover {
+    background-color: #0056b3;
+}
+
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+}

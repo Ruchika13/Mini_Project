@@ -3,100 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Support Ticket System</title>
+    <title>Login - Customer Support Ticket System</title>
     <link rel="stylesheet" href="index.css">
 </head>
 <body>
-    <h1>Customer Support Ticket System</h1>
-    
-    <!-- Navigation to Dashboard -->
-    <div class="nav-container">
-        <button onclick="navigateToDashboard()">Go to Dashboard</button>
-    </div>
-    
-    <!-- Ticket Form -->
-    <div class="form-container">
-        <form id="ticketForm">
-            <input type="hidden" id="ticketID" name="ticketID">
-            <label>Customer Name</label>
-            <input type="text" id="customerName" name="customerName" required>
-            <label>Customer Email</label>
-            <input type="email" id="customerEmail" name="customerEmail" required>
-            <label>Customer Age</label>
-            <input type="number" id="customerAge" name="customerAge" required>
-            <label>Customer Gender</label>
-            <select id="customerGender" name="customerGender" required>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-            </select>
-            <label>Product Purchased</label>
-            <input type="text" id="productPurchased" name="productPurchased" required>
-            <label>Date of Purchase</label>
-            <input type="date" id="dateOfPurchase" name="dateOfPurchase" required>
-            <label>Ticket Type</label>
-            <input type="text" id="ticketType" name="ticketType" required>
-            <label>Ticket Subject</label>
-            <input type="text" id="ticketSubject" name="ticketSubject" required>
-            <label>Ticket Description</label>
-            <textarea id="ticketDescription" name="ticketDescription" required></textarea>
-            <label>Ticket Status</label>
-            <select id="ticketStatus" name="ticketStatus" required>
-                <option value="Open">Open</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Resolved">Resolved</option>
-                <option value="Closed">Closed</option>
-            </select>
-            <label>Resolution</label>
-            <input type="text" id="resolution" name="resolution">
-            <label>Ticket Priority</label>
-            <input type="text" id="ticketPriority" name="ticketPriority" required>
-            <label>Ticket Channel</label>
-            <input type="text" id="ticketChannel" name="ticketChannel" required>
-            <label>First Response Time</label>
-            <input type="text" id="firstResponseTime" name="firstResponseTime">
-            <label>Time to Resolution</label>
-            <input type="text" id="timeToResolution" name="timeToResolution">
-            <label>Customer Satisfaction Rating</label>
-            <input type="number" id="customerSatisfactionRating" name="customerSatisfactionRating" max="5" min="1">
-            <button type="submit">Save</button>
+    <div class="login-container">
+        <h1>Login</h1>
+        <form id="loginForm">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            <button type="submit">Login</button>
         </form>
+        <p class="error-message" id="errorMessage"></p>
     </div>
-    
-    <!-- Ticket Table -->
-    <div class="table-container">
-        <input type="file" id="csvFileInput" accept=".csv" onchange="importCSV(event)">
-        <table id="ticketsTable">
-            <thead>
-                <tr>
-                    <th>Ticket ID</th>
-                    <th>Customer Name</th>
-                    <th>Customer Email</th>
-                    <th>Customer Age</th>
-                    <th>Customer Gender</th>
-                    <th>Product Purchased</th>
-                    <th>Date of Purchase</th>
-                    <th>Ticket Type</th>
-                    <th>Ticket Subject</th>
-                    <th>Ticket Description</th>
-                    <th>Ticket Status</th>
-                    <th>Resolution</th>
-                    <th>Ticket Priority</th>
-                    <th>Ticket Channel</th>
-                    <th>First Response Time</th>
-                    <th>Time to Resolution</th>
-                    <th>Customer Satisfaction Rating</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-    
     <script>
-        function navigateToDashboard() {
-            window.location.href = "dashboard.html";
-        }
+        document.getElementById("loginForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            // Dummy credentials for validation
+            const validUser = {
+                email: "admin@example.com",
+                password: "admin123"
+            };
+
+            if (email === validUser.email && password === validUser.password) {
+                // Redirect to index.html
+                window.location.href = "homepage.html";
+            } else {
+                // Show error message
+                document.getElementById("errorMessage").textContent = "Invalid email or password.";
+            }
+        });
     </script>
-    <script src="script.js"></script>
 </body>
 </html>
