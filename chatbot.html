@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Call Page</title>
+    <style>
+      /* Form container */
+      form {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column; /* Stack elements vertically */
+        gap: 15px; /* Add space between elements */
+        background-color: #f9f9f9; /* Light background */
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
+        max-width: 500px;
+        margin: 0 auto; /* Center the form horizontally */
+      }
+
+      /* Input field styling */
+      label {
+        font-size: 18px;
+        margin-bottom: 5px;
+        color: #333; /* Darker label text */
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+        box-sizing: border-box; /* Ensure padding doesn't increase size */
+        transition: border-color 0.3s;
+      }
+
+      input[type="text"]:focus {
+        border-color: #007bff; /* Highlight border on focus */
+        outline: none; /* Remove default focus outline */
+      }
+
+      /* Add spacing around ticket type display */
+      #ticketType {
+        width: 100%;
+        padding: 12px;
+        margin-top: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+        background-color: #e9ecef; /* Light grey background */
+        color: #333;
+      }
+
+      /* Loader styles */
+      #loader {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        font-size: 16px;
+        display: none; /* Hidden by default */
+      }
+      button {
+        background-color: #007bff; /* Primary blue color */
+        color: white; /* Text color */
+        border: none; /* Remove default border */
+        border-radius: 5px; /* Rounded corners */
+        padding: 10px 20px; /* Top/Bottom and Left/Right padding */
+        font-size: 16px; /* Font size */
+        cursor: pointer; /* Change cursor to pointer when hovering */
+        transition: background-color 0.3s, transform 0.2s; /* Smooth transitions for hover effects */
+        margin-left: 10px;
+      }
+
+      button:hover {
+        background-color: #0056b3; /* Darker blue on hover */
+        transform: scale(1.05); /* Slightly increase button size on hover */
+      }
+
+      button:active {
+        background-color: #004085; /* Even darker blue on click */
+        transform: scale(1); /* Reset scale to normal when clicked */
+      }
+
+      button:focus {
+        outline: none; /* Remove the focus outline */
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Support Ticket Chatbot</h1>
+    <div class="nav-container">
+      <button onclick="navigateToTickets()">Back to Tickets</button>
+    </div>
+
+    <!-- <form onsubmit="event.preventDefault(); fetchTicketType();">
+      <label for="userInput">Enter Input:</label>
+      <input type="text" id="userInput" required />
+      <button type="submit">Submit</button>
+    </form>
+    <br />
+    <label for="ticketType">Ticket Type:</label>
+    <input type="text" id="ticketType" readonly /> -->
+
+    <!-- Updated Form Section -->
+    <form onsubmit="event.preventDefault(); fetchTicketType();">
+      <label for="userInput">Enter Input:</label>
+      <input
+        type="text"
+        id="userInput"
+        placeholder="Type your ticket description..."
+        required
+      />
+      <button type="submit">Submit</button>
+      <label for="ticketType">Ticket Type:</label>
+      <input type="text" id="ticketType" readonly />
+
+      <button id="raiseTicket">Raise Ticket</button>
+    </form>
+
+    <!-- <table id="ticketsTable">
+        <thead>
+          <tr>
+            <th>Ticket ID</th>
+            <th>Customer Name</th>
+            <th>Customer Email</th>
+            <th>Customer Age</th>
+            <th>Customer Gender</th>
+            <th>Product Purchased</th>
+            <th>Date of Purchase</th>
+            <th>Ticket Type</th>
+            <th>Ticket Subject</th>
+            <th>Ticket Description</th>
+            <th>Ticket Status</th>
+            <th>Resolution</th>
+            <th>Ticket Priority</th>
+            <th>Ticket Channel</th>
+            <th>First Response Time</th>
+            <th>Time to Resolution</th>
+            <th>Customer Satisfaction Rating</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table> -->
+
+    <script>
+      function navigateToTickets() {
+        window.location.href = "homepage.html";
+      }
+
+      function fetchTicketType() {
+        const inputField = document.getElementById("userInput");
+        const ticketTypeField = document.getElementById("ticketType");
+        const userInput = inputField.value;
+
+        fetch(
+          //   "http://127.0.0.1:8000/predict_ticket_type",
+          "https://mini-project-backend-jmwh.onrender.com/predict_ticket_type",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ description: userInput }),
+          }
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            ticketTypeField.value = data.predicted_category; // Assuming the API returns { "ticketType": "someType" }
+          })
+          .catch((error) => {
+            console.error("Error fetching ticket type:", error);
+          });
+      }
+
+      document
+        .getElementById("raiseTicket")
+        .addEventListener("click", function () {
+          const storedTickets = JSON.parse(
+            localStorage.getItem("tickets") || "[]"
+          );
+          const newTicket = {
+            ticketID: (storedTickets?.length ? storedTickets?.length : 0) + 1,
+            customerName: "",
+            customerEmail: "admin@example.com",
+            customerAge: "",
+            customerGender: "",
+            productPurchased: "",
+            dateOfPurchase: "",
+            ticketType: document.getElementById("ticketType").value,
+            ticketSubject: "",
+            ticketDescription: document.getElementById("userInput").value,
+            ticketStatus: "Open",
+            resolution: "",
+            ticketPriority: "",
+            ticketChannel: "",
+            firstResponseTime: "",
+            timeToResolution: "",
+            customerSatisfactionRating: 0,
+          };
+          storedTickets.push(newTicket);
+          localStorage.setItem("tickets", JSON.stringify(storedTickets));
+          alert("Ticket raised successfully!");
+        });
+    </script>
+  </body>
+</html>
